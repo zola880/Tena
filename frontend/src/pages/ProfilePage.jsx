@@ -1,0 +1,178 @@
+import { useState } from 'react';
+import { User, Save, CheckCircle2, Scale, Ruler, Target } from 'lucide-react';
+import { useHealth } from '../context/HealthContext';
+import { cn } from '../lib/utils';
+
+export default function ProfilePage() {
+  const { profile, setProfile } = useHealth();
+  const [formData, setFormData] = useState(profile || {
+    age: 25,
+    gender: 'male',
+    weight: 70,
+    height: 170,
+    goal: 'maintain health',
+    conditions: '',
+  });
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setProfile(formData);
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-display font-bold text-slate-900 mb-2">Your Health Profile</h1>
+        <p className="text-slate-500">This information helps us tailor recommendations to your body and goals.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Profile Summary Card */}
+        <div className="lg:col-span-1">
+          <div className="glass-card rounded-[32px] p-8 text-center space-y-6 sticky top-24">
+            <div className="w-24 h-24 bg-ethiopia-green/10 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+              <User className="text-ethiopia-green w-12 h-12" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900">
+                {formData.gender === 'male' ? 'Gash' : 'Emebet'} {formData.age}
+              </h3>
+              <p className="text-slate-500 font-medium uppercase tracking-widest text-xs mt-1">{formData.goal}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <Scale className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+                <div className="text-xl font-black text-slate-800">{formData.weight}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">Weight (kg)</div>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <Ruler className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+                <div className="text-xl font-black text-slate-800">{formData.height}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">Height (cm)</div>
+              </div>
+            </div>
+
+            <div className="pt-4">
+               <div className="p-4 bg-ethiopia-green/5 rounded-2xl border border-ethiopia-green/10 text-left">
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-ethiopia-green" />
+                  <span className="text-xs font-bold text-ethiopia-green uppercase">Current Goal</span>
+                </div>
+                <p className="text-sm text-slate-700 font-medium">
+                  {formData.goal === 'lose weight' ? 'Focusing on calorie deficit and high-fiber local foods like Shiro.' : 
+                   formData.goal === 'gain muscle' ? 'Prioritizing protein-rich foods like Doro Wat and legumes.' : 
+                   'Maintaining a balanced diet with traditional Ethiopian staples.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Area */}
+        <div className="lg:col-span-2">
+          <form onSubmit={handleSubmit} className="glass-card rounded-[32px] p-10 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Age</label>
+                <input 
+                  type="number" 
+                  className="input-field py-3 text-lg font-bold" 
+                  value={formData.age}
+                  onChange={(e) => setFormData({...formData, age: parseInt(e.target.value) || 0})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
+                <select 
+                  className="input-field py-3 text-lg font-bold"
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Weight (kg)</label>
+                <input 
+                  type="number" 
+                  className="input-field py-3 text-lg font-bold" 
+                  value={formData.weight}
+                  onChange={(e) => setFormData({...formData, weight: parseInt(e.target.value) || 0})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Height (cm)</label>
+                <input 
+                  type="number" 
+                  className="input-field py-3 text-lg font-bold" 
+                  value={formData.height}
+                  onChange={(e) => setFormData({...formData, height: parseInt(e.target.value) || 0})}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Your Primary Health Goal</label>
+              <div className="grid grid-cols-1 gap-3">
+                {['lose weight', 'gain muscle', 'maintain health'].map((goal) => (
+                  <button
+                    key={goal}
+                    type="button"
+                    onClick={() => setFormData({...formData, goal})}
+                    className={cn(
+                      "py-4 px-6 text-lg font-bold rounded-2xl border text-left flex items-center justify-between transition-all",
+                      formData.goal === goal 
+                        ? "bg-ethiopia-green/10 border-ethiopia-green text-ethiopia-green shadow-sm" 
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    )}
+                  >
+                    {goal.charAt(0).toUpperCase() + goal.slice(1)}
+                    {formData.goal === goal && <CheckCircle2 className="w-6 h-6" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Health Conditions (Optional)</label>
+              <textarea 
+                className="input-field min-h-[100px] py-4 text-lg" 
+                placeholder="e.g. Diabetes, Hypertension, Gluten Sensitivity..."
+                value={formData.conditions}
+                onChange={(e) => setFormData({...formData, conditions: e.target.value})}
+              />
+            </div>
+
+            <div className="pt-6">
+              <button 
+                type="submit"
+                className="btn-primary w-full py-4 text-xl flex items-center justify-center gap-3"
+              >
+                {isSaved ? (
+                  <>
+                    <CheckCircle2 className="w-6 h-6" />
+                    Profile Updated!
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-6 h-6" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

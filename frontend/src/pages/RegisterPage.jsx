@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useHealth } from '../context/HealthContext';
-import { Heart, Mail, Lock, User, Scale, Ruler, Target, AlertCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { Heart, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

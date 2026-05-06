@@ -56,4 +56,4 @@ api.getRecommendationHistory = () => api.get('/recommendations/history');
 api.addProgressEntry = (data) => api.post('/progress', data);
 api.getProgressEntries = (limit = 30) => api.get(`/progress?limit=${limit}`);
 
-export default api;s
+export default api;

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useHealth } from '../context/HealthContext';
 import { Heart, Mail, Lock, AlertCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -92,7 +91,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-slate-500 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link to="/register" className="text-ethiopia-green font-bold hover:underline">
                 Create one
               </Link>

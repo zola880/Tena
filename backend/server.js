@@ -5,22 +5,40 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ CORS
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*',
+  credentials: true
+}));
+
+// ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/healthtracking')
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB error:', err));
+// ✅ MongoDB Connection (FIXED)
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error.message);
+    process.exit(1);
+  }
+};
 
-// Routes – FIXED: use correct path to your router index
-const apiRouter = require('./routes/index');  // rename folder from '85router' to 'routes'
+connectDB();
+
+// ✅ Routes
+const apiRouter = require('./routes/index');
 app.use('/api', apiRouter);
 
-// Health check
-app.get('/', (req, res) => res.json({ status: 'ok', message: 'Backend running' }));
+// ✅ Health check
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend running' });
+});
 
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});

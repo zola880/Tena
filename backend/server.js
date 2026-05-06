@@ -9,10 +9,7 @@ const app = express();
 
 // ================= CORS =================
 const allowedOrigins = [
-  'https://tena-rbej.vercel.app',
-  'https://tena-d7oi-nc1ku1aka-zola880s-projects.vercel.app',
-  'http://localhost:3000',
-  'http://localhost:5173'
+  'https://tena-d7oi-rmhigfgmc-zola880s-projects.vercel.app'
 ];
 
 app.use(cors({

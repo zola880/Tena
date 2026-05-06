@@ -2,12 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
 // ================= CORS =================
 const allowedOrigins = [
   'https://tena-rbej.vercel.app',
+  'https://tena-d7oi-nc1ku1aka-zola880s-projects.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173'
 ];
@@ -25,6 +28,16 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// ================= Security =================
+app.use(helmet());
+
+// Rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: 'Too many authentication attempts, please try again later.'
+});
 
 // ================= Middleware =================
 app.use(express.json());
@@ -46,6 +59,10 @@ connectDB();
 // ================= Routes =================
 const apiRouter = require('./routes/index');
 app.use('/api', apiRouter);
+
+// ================= Error Handling =================
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
 
 // ================= Health Check =================
 app.get('/', (req, res) => {

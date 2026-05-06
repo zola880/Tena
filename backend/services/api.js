@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api'; // change to your backend URL when deployed
+const API_BASE_URL = 'https://tena-ic0w.onrender.com/api'; // deployed backend URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,

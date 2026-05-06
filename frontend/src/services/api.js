@@ -1,15 +1,17 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ✅ Backend URL from Vercel env
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true
 });
 
-// Request interceptor: attach token to every request
+// ================= TOKEN =================
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,7 +23,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor: handle 401 (unauthorized) by logging out
+// ================= ERROR HANDLING =================
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -33,27 +35,38 @@ api.interceptors.response.use(
   }
 );
 
-// Auth methods – now includes profile fields
-api.register = (email, password, age, gender, weightKg, heightCm, goal, conditions) => 
-  api.post('/auth/register', { email, password, age, gender, weightKg, heightCm, goal, conditions });
+// ================= AUTH =================
+api.register = (email, password, age, gender, weightKg, heightCm, goal, conditions) =>
+  api.post('/auth/register', {
+    email,
+    password,
+    age,
+    gender,
+    weightKg,
+    heightCm,
+    goal,
+    conditions
+  });
 
-api.login = (email, password) => api.post('/auth/login', { email, password });
+api.login = (email, password) =>
+  api.post('/auth/login', { email, password });
 
-// Profile
+// ================= PROFILE =================
 api.getProfile = () => api.get('/profile');
 api.updateProfile = (data) => api.put('/profile', data);
 
-// Daily input
+// ================= DAILY =================
 api.getDailyInput = () => api.get('/daily');
 api.saveDailyInput = (data) => api.post('/daily', data);
 
-// Recommendations
+// ================= RECOMMENDATIONS =================
 api.generateRecommendation = () => api.post('/recommendations/generate');
 api.getLatestRecommendation = () => api.get('/recommendations/latest');
 api.getRecommendationHistory = () => api.get('/recommendations/history');
 
-// Progress
+// ================= PROGRESS =================
 api.addProgressEntry = (data) => api.post('/progress', data);
-api.getProgressEntries = (limit = 30) => api.get(`/progress?limit=${limit}`);
+api.getProgressEntries = (limit = 30) =>
+  api.get(`/progress?limit=${limit}`);
 
 export default api;

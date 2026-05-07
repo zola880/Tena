@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Save, CheckCircle2, Scale, Ruler, Target, AlertCircle } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 import { cn } from '../lib/utils';
-import api from '../lib/api'; // ✅ Import api for direct calls
+import api from '..services/api.js'; // ✅ Import api for direct calls
 
 export default function ProfilePage() {
   const { profile, setProfile } = useHealth();

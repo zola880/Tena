@@ -3,40 +3,28 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// ================= CORS =================
+// ================= CORS (MUST BE FIRST) =================
 const allowedOrigins = [
-  'https://tena-d7oi-rmhigfgmc-zola880s-projects.vercel.app'
+  'https://tena-d7oi.vercel.app'
 ];
+const isVercelPreview = (origin) => /^https:\/\/.*\.vercel\.app$/.test(origin);
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow server-to-server or Postman
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow Postman/curl
+    if (allowedOrigins.includes(origin) || isVercelPreview(origin)) {
       return callback(null, true);
     }
-
-    return callback(new Error('Not allowed by CORS'));
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
 
-// ================= Security =================
+// ================= Security & Middleware =================
 app.use(helmet());
-
-// Rate limiting for auth routes
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs
-  message: 'Too many authentication attempts, please try again later.'
-});
-
-// ================= Middleware =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,32 +34,30 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
+    console.error('❌ MongoDB error:', error.message);
     process.exit(1);
   }
 };
-
 connectDB();
 
 // ================= Routes =================
 const apiRouter = require('./routes/index');
 app.use('/api', apiRouter);
 
-// ================= Error Handling =================
+// ================= Health Check =================
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend running' });
+});
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ================= Error Handler (LAST) =================
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
 
-// ================= Health Check =================
-app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Backend running'
-  });
-});
-
 // ================= Start Server =================
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

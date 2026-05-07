@@ -1,13 +1,11 @@
 import axios from 'axios';
 
-// ✅ Backend URL from Vercel env
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// ✅ Backend URL with fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
   withCredentials: true
 });
 
@@ -36,17 +34,8 @@ api.interceptors.response.use(
 );
 
 // ================= AUTH =================
-api.register = (email, password, age, gender, weightKg, heightCm, goal, conditions) =>
-  api.post('/auth/register', {
-    email,
-    password,
-    age,
-    gender,
-    weightKg,
-    heightCm,
-    goal,
-    conditions
-  });
+// ✅ FIXED: Accept single object (matches RegisterPage.jsx)
+api.register = (data) => api.post('/auth/register', data);
 
 api.login = (email, password) =>
   api.post('/auth/login', { email, password });

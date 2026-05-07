@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { User, Save, CheckCircle2, Scale, Ruler, Target } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Save, CheckCircle2, Scale, Ruler, Target, AlertCircle } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 import { cn } from '../lib/utils';
+import api from '../lib/api'; // ✅ Import api for direct calls
 
 export default function ProfilePage() {
   const { profile, setProfile } = useHealth();
-  const [formData, setFormData] = useState(profile || {
+  
+  const [formData, setFormData] = useState({
     age: 25,
     gender: 'male',
     weight: 70,
@@ -13,14 +15,61 @@ export default function ProfilePage() {
     goal: 'maintain health',
     conditions: '',
   });
+  
   const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // ✅ Fetch profile from backend on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        // Try context first, fallback to direct API call
+        if (profile) {
+          setFormData(profile);
+        } else {
+          const res = await api.getProfile();
+          setFormData(res.data);
+          setProfile?.(res.data); // update context if available
+        }
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+        setError('Could not load profile. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [profile, setProfile]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setProfile(formData);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      // ✅ Save to backend
+      const res = await api.updateProfile(formData);
+      
+      // ✅ Update local state + context
+      setProfile?.(res.data);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save profile');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // ✅ Loading state
+  if (isLoading && !profile) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-ethiopia-green/30 border-t-ethiopia-green rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -28,6 +77,14 @@ export default function ProfilePage() {
         <h1 className="text-4xl font-display font-bold text-slate-900 mb-2">Your Health Profile</h1>
         <p className="text-slate-500">This information helps us tailor recommendations to your body and goals.</p>
       </div>
+
+      {/* ✅ Error Banner */}
+      {error && (
+        <div className="mb-6 flex items-center gap-2 p-4 bg-red-50 rounded-2xl text-red-700 text-sm border border-red-100">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Profile Summary Card */}
@@ -155,9 +212,12 @@ export default function ProfilePage() {
             <div className="pt-6">
               <button 
                 type="submit"
-                className="btn-primary w-full py-4 text-xl flex items-center justify-center gap-3"
+                disabled={isLoading}
+                className="btn-primary w-full py-4 text-xl flex items-center justify-center gap-3 disabled:opacity-70"
               >
-                {isSaved ? (
+                {isLoading ? (
+                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : isSaved ? (
                   <>
                     <CheckCircle2 className="w-6 h-6" />
                     Profile Updated!

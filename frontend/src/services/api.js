@@ -32,13 +32,14 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 // ================= AUTH =================
-// ✅ FIXED: Accept single object (matches RegisterPage.jsx)
-api.register = (data) => api.post('/auth/register', data);
+
+// FIXED: backend already has /api prefix in baseURL
+api.register = (data) => api.post('/register', data);
 
 api.login = (email, password) =>
-  api.post('/auth/login', { email, password });
+  api.post('/login', { email, password });
+
 
 // ================= PROFILE =================
 api.getProfile = () => api.get('/profile');

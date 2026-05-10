@@ -35,11 +35,10 @@ api.interceptors.response.use(
 // ================= AUTH =================
 
 // FIXED: backend already has /api prefix in baseURL
-api.register = (data) => api.post('/register', data);
+api.register = (data) => api.post('/auth/register', data);
 
 api.login = (email, password) =>
-  api.post('/login', { email, password });
-
+  api.post('/auth/login', { email, password });
 
 // ================= PROFILE =================
 api.getProfile = () => api.get('/profile');

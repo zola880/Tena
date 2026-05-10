@@ -8,17 +8,29 @@ const app = express();
 
 // ================= CORS (MUST BE FIRST) =================
 const allowedOrigins = [
-  'https://tena-d7oi.vercel.app'
+  'https://tena-os58.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173'
 ];
-const isVercelPreview = (origin) => /^https:\/\/.*\.vercel\.app$/.test(origin);
+
+const isVercelPreview = (origin) =>
+  origin && /^https:\/\/.*\.vercel\.app$/.test(origin);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow Postman/curl
-    if (allowedOrigins.includes(origin) || isVercelPreview(origin)) {
+    // Allow tools like Postman / curl
+    if (!origin) return callback(null, true);
+
+    // Allow production + local + preview URLs
+    if (
+      allowedOrigins.includes(origin) ||
+      isVercelPreview(origin)
+    ) {
       return callback(null, true);
     }
-    callback(new Error('Not allowed by CORS'));
+
+    console.log("❌ Blocked CORS origin:", origin);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
